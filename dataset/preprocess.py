@@ -1,6 +1,7 @@
 """
 This module contains functions to preprocess the raw datasets to a single format that will be used to train a machine learning model.
 """
+import argparse
 import codecs
 import csv
 
@@ -25,6 +26,7 @@ HCLDD_FEATURES = [
     "prcntAsian",
     "prcntWhiteAll",
 ]
+OUTPUT_DATASET = "dataset/preprocessed/dataset.pickle.bz2"
 
 
 def _impute_winners(result_dict: dict) -> dict:
@@ -135,8 +137,8 @@ def _load_hcldd(hcldd_path: str) -> dict:
     return hcldd
 
 
-def get_dataset() -> pd.DataFrame:
-    results_dict = _impute_winners(_load_winners(WINNERS_DATASET))
+def build_dataset(winners_path, hcldd_path) -> pd.DataFrame:
+    results_dict = _impute_winners(_load_winners(winners_path))
 
     # go from dictionary of all results to dataframe of winners only
     winners_df = pd.DataFrame.from_dict(results_dict)
@@ -151,7 +153,7 @@ def get_dataset() -> pd.DataFrame:
     no_good = [x for x in winners_df["candidate"].tolist() if " " not in x.strip()]
     winners_df = winners_df[~winners_df["candidate"].isin(set(no_good))]
 
-    hcldd = _load_hcldd(HCLDD_DATASET)
+    hcldd = _load_hcldd(hcldd_path)
 
     # Merge race labels with winners dataframe
     race_labels = {
@@ -167,7 +169,9 @@ def get_dataset() -> pd.DataFrame:
 
     # Merge features into dataframe
     feature_dict = {
-        k: hcldd[k] for k in HCLDD_FEATURES + ["state_po", "district", "year"] if k in hcldd
+        k: hcldd[k]
+        for k in HCLDD_FEATURES + ["state_po", "district", "year"]
+        if k in hcldd
     }
 
     dataset = pd.merge(
@@ -184,5 +188,16 @@ def get_dataset() -> pd.DataFrame:
 
 
 if __name__ == "__main__":
-    dataset = get_dataset()
-    print(dataset.info())
+    parser = argparse.ArgumentParser()
+    parser.description = (
+        "Preprocesses the raw data and outputs a pickle of a Pandas dataframe"
+        " containing the dataset to be used for model training and inference."
+    )
+    parser.add_argument("--hcldd-path", "-f", default=HCLDD_DATASET)
+    parser.add_argument("--winners-path", "-w", default=WINNERS_DATASET)
+    parser.add_argument("--output-path", "-o", default=OUTPUT_DATASET)
+    args = parser.parse_args()
+
+    dataset = build_dataset(args.winners_path, args.hcldd_path)
+    dataset.to_pickle(args.output_path)
+    print('Done!\nPath: {}'.format(args.output_path))
