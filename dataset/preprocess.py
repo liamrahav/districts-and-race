@@ -1,5 +1,6 @@
 """
-This module contains functions to preprocess the raw datasets to a single format that will be used to train a machine learning model.
+This module contains functions to preprocess the raw datasets to a single format that
+will be used to train a machine learning model.
 """
 import argparse
 import codecs
