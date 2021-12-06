@@ -134,3 +134,4 @@ dmypy.json
 
 # MandeR source
 mandeR/
+.Rapp.history
