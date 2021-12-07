@@ -1,15 +1,21 @@
 """
 This module contains functions to preprocess the raw datasets to a single format that
 will be used to train a machine learning model.
+
+NOTE: MAKE SURE YOU HAVE DOWNLOADED & SCORED SHAPEFILES BEFORE RUNNING THIS SCRIPT.
 """
 import argparse
 import codecs
 import csv
+import math
+import os
+from typing import Tuple
 
 import numpy as np
 import pandas as pd
 
 from dataset import utils
+from shapefiles import fetch_scores_from
 
 
 UP_TO_YEAR = 2012
@@ -27,6 +33,7 @@ HCLDD_FEATURES = [
     "prcntAsian",
     "prcntWhiteAll",
 ]
+SHAPEFILES_BASEDIR = "dataset/preprocessed/shapefiles"
 OUTPUT_DATASET = "dataset/preprocessed/dataset.pickle.bz2"
 
 
@@ -133,12 +140,48 @@ def _load_hcldd(hcldd_path: str) -> dict:
         hcldd["year"].append(year)
 
     del hcldd["stateDist"]
-    del hcldd["congNum"]
 
     return hcldd
 
 
-def build_dataset(winners_path, hcldd_path) -> pd.DataFrame:
+def _merge_compactness_scores(
+    dataset: pd.DataFrame,
+    shapefiles_dir: str,
+    scores: Tuple[str] = ('CvxHullPT',)
+) -> pd.DataFrame:
+    for score_name in scores:
+        dataset[score_name] = [0] * len(dataset.index)
+
+    all_scores = {}
+    for cong_num in dataset.congNum.unique():
+        if math.isnan(float(cong_num)):
+            continue
+
+        shapefile_path = os.path.join(
+            shapefiles_dir,
+            str(cong_num) + "/districtShapes/districtShapes.shp",
+        )
+        all_scores[cong_num] = fetch_scores_from(shapefile_path, scores)
+
+    for cong_num in all_scores:
+        for state_name in all_scores[cong_num]:
+            for district in all_scores[cong_num][state_name]:
+                for score_name, score in all_scores[cong_num][state_name][district].items():
+                    dataset.loc[
+                        (dataset['congNum'] == str(cong_num)) &
+                        (dataset['state'] == state_name) &
+                        (dataset['district'] == str(district)),
+                        score_name
+                    ] = score
+
+    return dataset
+
+
+def build_dataset(
+    winners_path: str,
+    hcldd_path: str,
+    shapefiles_dir: str,
+) -> pd.DataFrame:
     results_dict = _impute_winners(_load_winners(winners_path))
 
     # go from dictionary of all results to dataframe of winners only
@@ -159,7 +202,8 @@ def build_dataset(winners_path, hcldd_path) -> pd.DataFrame:
     # Merge race labels with winners dataframe
     race_labels = {
         k: hcldd[k]
-        for k in ("year", "state_po", "district", "black", "hispanic")
+        # Maintain congNum for ease when merging compactness scores
+        for k in ("year", "congNum", "state_po", "district", "black", "hispanic")
         if k in hcldd
     }
     race_df = pd.DataFrame.from_dict(race_labels)
@@ -182,7 +226,9 @@ def build_dataset(winners_path, hcldd_path) -> pd.DataFrame:
         on=["state_po", "district", "year"],
     )
 
-    to_numbers = HCLDD_FEATURES + ["black", "hispanic"]
+    dataset = _merge_compactness_scores(dataset, shapefiles_dir)
+
+    to_numbers = HCLDD_FEATURES + ["black", "hispanic", "CvxHullPT"]
     dataset[to_numbers] = dataset[to_numbers].apply(pd.to_numeric, errors="coerce")
 
     return dataset
@@ -193,12 +239,14 @@ if __name__ == "__main__":
     parser.description = (
         "Preprocesses the raw data and outputs a pickle of a Pandas dataframe"
         " containing the dataset to be used for model training and inference."
+        "\nNOTE: MAKE SURE YOU HAVE DOWNLOADED & SCORED SHAPEFILES BEFORE RUNNING THIS SCRIPT."
     )
     parser.add_argument("--hcldd-path", "-f", default=HCLDD_DATASET)
     parser.add_argument("--winners-path", "-w", default=WINNERS_DATASET)
+    parser.add_argument("--shapefiles-path", "-s", default=SHAPEFILES_BASEDIR)
     parser.add_argument("--output-path", "-o", default=OUTPUT_DATASET)
     args = parser.parse_args()
 
-    dataset = build_dataset(args.winners_path, args.hcldd_path)
+    dataset = build_dataset(args.winners_path, args.hcldd_path, args.shapefiles_path)
     dataset.to_pickle(args.output_path)
-    print('Done!\nPath: {}'.format(args.output_path))
+    print("Done!\nPath: {}".format(args.output_path))
