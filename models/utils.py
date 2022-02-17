@@ -1,8 +1,14 @@
-import pandas as pd
+import matplotlib.font_manager as fm
+
 import numpy as np
+import pandas as pd
+import seaborn as sns
+
 
 DATASET_PATH = "dataset/preprocessed/dataset.pickle.bz2"
 PRETRAINED_PREFIX = 'pretrained/'
+
+LATO_FILE = '/Users/liamrahav/Library/Fonts/Lato-Bold.ttf'
 
 REDUCED_FEATURES = [
     "year",
@@ -68,3 +74,33 @@ def get_dataset(features='full'):
         cv.append((subgroup, groups[i + 1]))
 
     return X, y, cv
+
+
+def set_plot_defaults():
+    fm.fontManager.addfont(LATO_FILE)
+    sns.set(
+        font="Lato",
+        rc={
+            "axes.axisbelow": False,
+            "axes.edgecolor": "lightgrey",
+            "axes.facecolor": "None",
+            "axes.grid": False,
+            "axes.labelcolor": "dimgrey",
+            "axes.spines.right": False,
+            "axes.spines.top": False,
+            "figure.facecolor": "white",
+            "lines.solid_capstyle": "round",
+            "patch.edgecolor": "w",
+            "patch.force_edgecolor": True,
+            "text.color": "dimgrey",
+            "xtick.bottom": False,
+            "xtick.color": "dimgrey",
+            "xtick.direction": "out",
+            "xtick.top": False,
+            "ytick.color": "dimgrey",
+            "ytick.direction": "out",
+            "ytick.left": False,
+            "ytick.right": False,
+            'font.size': 12
+        },
+    )
