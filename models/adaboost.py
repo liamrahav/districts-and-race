@@ -21,7 +21,7 @@ PARAM_GRID = {
 
 def perform_grid_search(dataset="full", verbose=True, save=True, load=True):
     filepath = "{}{}_{}.pkl".format(PRETRAINED_PREFIX, SAVE_MODEL_NAME, dataset)
-    if os.path.exists(filepath):
+    if load and os.path.exists(filepath):
         try:
             return joblib.load(filepath)
         except:
@@ -50,4 +50,4 @@ def perform_grid_search(dataset="full", verbose=True, save=True, load=True):
 
 
 if __name__ == "__main__":
-    clf = perform_grid_search(dataset="full")
+    clf = perform_grid_search(dataset="reduced")

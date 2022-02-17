@@ -18,13 +18,13 @@ PARAM_GRID = {"max_depth": [2, 4, 6, 10, 15]}
 
 def perform_grid_search(dataset="full", verbose=True, save=True, load=True):
     filepath = "{}{}_{}.pkl".format(PRETRAINED_PREFIX, SAVE_MODEL_NAME, dataset)
-    if os.path.exists(filepath):
+    if load and os.path.exists(filepath):
         try:
             return joblib.load(filepath)
         except:
             pass
 
-    X, y, cv = get_dataset(features="reduced")
+    X, y, cv = get_dataset(features=dataset)
 
     clf = DecisionTreeClassifier(random_state=0)
     gs = GridSearchCV(
@@ -47,14 +47,14 @@ def perform_grid_search(dataset="full", verbose=True, save=True, load=True):
 
 
 if __name__ == "__main__":
-    clf = perform_grid_search(dataset='reduced')
-    dot_file = "figures/tree_reduced_dataset.dot"
+    clf = perform_grid_search(dataset='full')
+    dot_file = "figures/tree_full_dataset.dot"
     export_graphviz(
         clf,
         dot_file,
         rounded=True,
         filled=True,
         class_names=["white"] + LABELS,
-        feature_names=REDUCED_FEATURES,
+        feature_names=FEATURES,
     )
     pydotplus.graph_from_dot_file(dot_file).write_png(dot_file.replace(".dot", ".png"))
