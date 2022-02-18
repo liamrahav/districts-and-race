@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+title: Districs and Race
+message: Please cite this software using these metadata.
+authors:
+  - given-names: Liam
+    family-names: Rahav
+    email: liam.rahav@rutgers.edu
+    affiliation: Rutgers University
+    
+date-released: 2022-02-18
+url: "https://github.com/liamrahav/districts-and-race"
