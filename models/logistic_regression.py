@@ -67,7 +67,7 @@ if __name__ == "__main__":
                 ax.set(xlabel="feature", ylabel="weight")
 
             # Graph normalized weights for all classes
-            for k, cname in enumerate(["white", "black", "hispanic"]):
+            for k, cname in enumerate(["other", "black", "hispanic"]):
                 sns.barplot(
                     x=featnames,
                     y=clf.coef_[k] / np.linalg.norm(clf.coef_[k]),

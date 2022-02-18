@@ -54,7 +54,7 @@ if __name__ == "__main__":
         dot_file,
         rounded=True,
         filled=True,
-        class_names=["white"] + LABELS,
+        class_names=["other"] + LABELS,
         feature_names=FEATURES,
     )
     pydotplus.graph_from_dot_file(dot_file).write_png(dot_file.replace(".dot", ".png"))
