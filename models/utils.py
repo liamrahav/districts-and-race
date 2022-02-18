@@ -76,6 +76,16 @@ def get_dataset(features='full'):
     return X, y, cv
 
 
+def get_test_set(features='full'):
+    # Returns the last cross validation group. Test is 2012 data, train is 1976-2010
+    X, y, cv = get_dataset(features=features)
+    # Extract items from indexes of second group from last cross-validation split
+    return (
+        X[cv[-1][1][0]:cv[-1][1][-1]],
+        y[cv[-1][1][0]:cv[-1][1][-1]]
+    )
+
+
 def set_plot_defaults():
     fm.fontManager.addfont(LATO_FILE)
     sns.set(

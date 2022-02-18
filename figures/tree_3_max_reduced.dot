@@ -1,0 +1,33 @@
+digraph Tree {
+node [shape=box, style="filled, rounded", color="black", fontname="helvetica"] ;
+edge [fontname="helvetica"] ;
+0 [label="prcntUnemp <= 5.417\ngini = 0.206\nsamples = 8679\nvalue = [7699, 634, 346]\nclass = other", fillcolor="#e89051"] ;
+1 [label="gini <= 0.043\ngini = 0.101\nsamples = 5875\nvalue = [5567, 164, 144]\nclass = other", fillcolor="#e68844"] ;
+0 -> 1 [labeldistance=2.5, labelangle=45, headlabel="True"] ;
+2 [label="prcntHS <= 34.523\ngini = 0.375\nsamples = 12\nvalue = [0, 3, 9]\nclass = hispanic", fillcolor="#ab7bee"] ;
+1 -> 2 ;
+3 [label="gini = 0.0\nsamples = 9\nvalue = [0, 0, 9]\nclass = hispanic", fillcolor="#8139e5"] ;
+2 -> 3 ;
+4 [label="gini = 0.0\nsamples = 3\nvalue = [0, 3, 0]\nclass = black", fillcolor="#39e581"] ;
+2 -> 4 ;
+5 [label="prcntUnemp <= 3.904\ngini = 0.097\nsamples = 5863\nvalue = [5567, 161, 135]\nclass = other", fillcolor="#e68843"] ;
+1 -> 5 ;
+6 [label="gini = 0.043\nsamples = 4118\nvalue = [4027, 64, 27]\nclass = other", fillcolor="#e6843d"] ;
+5 -> 6 ;
+7 [label="gini = 0.214\nsamples = 1745\nvalue = [1540, 97, 108]\nclass = other", fillcolor="#e89152"] ;
+5 -> 7 ;
+8 [label="prcntHS <= 78.25\ngini = 0.389\nsamples = 2804\nvalue = [2132, 470, 202]\nclass = other", fillcolor="#eca572"] ;
+0 -> 8 [labeldistance=2.5, labelangle=-45, headlabel="False"] ;
+9 [label="gini <= 0.418\ngini = 0.64\nsamples = 861\nvalue = [380, 300, 181]\nclass = other", fillcolor="#fbede3"] ;
+8 -> 9 ;
+10 [label="gini = 0.179\nsamples = 182\nvalue = [164, 17, 1]\nclass = other", fillcolor="#e88f4f"] ;
+9 -> 10 ;
+11 [label="gini = 0.655\nsamples = 679\nvalue = [216, 283, 180]\nclass = black", fillcolor="#e2fbed"] ;
+9 -> 11 ;
+12 [label="prcntUnemp <= 13.75\ngini = 0.179\nsamples = 1943\nvalue = [1752, 170, 21]\nclass = other", fillcolor="#e88f4e"] ;
+8 -> 12 ;
+13 [label="gini = 0.14\nsamples = 1851\nvalue = [1712, 119, 20]\nclass = other", fillcolor="#e78b49"] ;
+12 -> 13 ;
+14 [label="gini = 0.504\nsamples = 92\nvalue = [40, 51, 1]\nclass = black", fillcolor="#d5fae4"] ;
+12 -> 14 ;
+}

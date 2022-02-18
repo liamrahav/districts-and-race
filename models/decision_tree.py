@@ -8,12 +8,13 @@ import pandas as pd
 import pydotplus
 import sklearn
 from sklearn.tree import DecisionTreeClassifier, export_graphviz
+from sklearn.metrics import f1_score
 from sklearn.model_selection import GridSearchCV
 
-from utils import get_dataset, REDUCED_FEATURES, FEATURES, LABELS, PRETRAINED_PREFIX
+from utils import get_dataset, get_test_set, REDUCED_FEATURES, FEATURES, LABELS, PRETRAINED_PREFIX
 
 SAVE_MODEL_NAME = "dt"
-PARAM_GRID = {"max_depth": [2, 4, 6, 10, 15]}
+PARAM_GRID = {"max_depth": [2, 3, 6, 10, 15]}
 
 
 def perform_grid_search(dataset="full", verbose=True, save=True, load=True):
@@ -47,14 +48,22 @@ def perform_grid_search(dataset="full", verbose=True, save=True, load=True):
 
 
 if __name__ == "__main__":
-    clf = perform_grid_search(dataset='full')
-    dot_file = "figures/tree_full_dataset.dot"
-    export_graphviz(
-        clf,
-        dot_file,
-        rounded=True,
-        filled=True,
-        class_names=["other"] + LABELS,
-        feature_names=FEATURES,
-    )
-    pydotplus.graph_from_dot_file(dot_file).write_png(dot_file.replace(".dot", ".png"))
+    for dtype in ["full", "reduced"]:
+        clf = perform_grid_search(dataset=dtype, load=False, verbose=False)
+        print(clf.get_params())
+
+        X, y = get_test_set(dtype)
+        y_hat = clf.predict(X)
+        f1 = f1_score(y_true=y, y_pred=y_hat, average='weighted')
+        print("{} penalty\tAcc: {:.4f}\tF1: {:.4f}".format(dtype, clf.score(X, y), f1))
+
+        dot_file = "figures/tree_{}_dataset.dot".format(dtype)
+        export_graphviz(
+            clf,
+            dot_file,
+            rounded=True,
+            filled=True,
+            class_names=["other"] + LABELS,
+            feature_names=FEATURES if dtype == 'full' else REDUCED_FEATURES,
+        )
+        pydotplus.graph_from_dot_file(dot_file).write_png(dot_file.replace(".dot", ".png"))

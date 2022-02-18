@@ -8,9 +8,10 @@ import pandas as pd
 import seaborn as sns
 import sklearn
 from sklearn.linear_model import LogisticRegressionCV
+from sklearn.metrics import f1_score
 from sklearn.preprocessing import normalize
 
-from utils import get_dataset, set_plot_defaults, REDUCED_FEATURES, FEATURES, LABELS, PRETRAINED_PREFIX
+from utils import get_dataset, get_test_set, set_plot_defaults, REDUCED_FEATURES, FEATURES, LABELS, PRETRAINED_PREFIX
 
 
 SAVE_MODEL_NAME = "logistic_regression"
@@ -58,8 +59,10 @@ if __name__ == "__main__":
         for j, penalty in enumerate(["l1", "l2"]):
             clf = perform_grid_search(dataset=dtype, verbose=False, penalty=penalty)
 
-            X, y, cv = get_dataset(features=dtype)
-            print("{}, {} penalty\t{}".format(dtype, penalty, clf.score(X, y)))
+            X, y = get_test_set(dtype)
+            y_hat = clf.predict(X)
+            f1 = f1_score(y_true=y, y_pred=y_hat, average='micro')
+            print("{}, {} penalty\tAcc: {:.4f}\tF1: {:.4f}".format(dtype, penalty, clf.score(X, y), f1))
 
             featnames = FEATURES if dtype == "full" else REDUCED_FEATURES
             fig, axs = plt.subplots(1, 3, figsize=(30, 10))

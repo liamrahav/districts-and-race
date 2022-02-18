@@ -7,9 +7,10 @@ import pandas as pd
 import sklearn
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import AdaBoostClassifier
+from sklearn.metrics import f1_score
 from sklearn.model_selection import GridSearchCV
 
-from utils import get_dataset, REDUCED_FEATURES, FEATURES, LABELS, PRETRAINED_PREFIX
+from utils import get_dataset, get_test_set, REDUCED_FEATURES, FEATURES, LABELS, PRETRAINED_PREFIX
 
 
 SAVE_MODEL_NAME = "adaboost_dt"
@@ -50,4 +51,11 @@ def perform_grid_search(dataset="full", verbose=True, save=True, load=True):
 
 
 if __name__ == "__main__":
-    clf = perform_grid_search(dataset="reduced")
+    for dtype in ["full", "reduced"]:
+        clf = perform_grid_search(dataset=dtype, verbose=False)
+
+        X, y = get_test_set(dtype)
+        y_hat = clf.predict(X)
+        f1 = f1_score(y_true=y, y_pred=y_hat, average='micro')
+        print("{}\tAcc: {:.4f}\tF1: {:.4f}".format(dtype, clf.score(X, y), f1))
+        print(clf.get_params())
